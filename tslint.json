@@ -1,0 +1,19 @@
+{
+	"rules": {
+		"no-unused-expression": true,
+		"no-consecutive-blank-lines": [ 2 ],
+		"max-line-length": [ 120 ],
+		"member-access": [
+			true
+		],
+		"member-ordering": [
+			true
+		],
+		"no-shadowed-variable": true,
+		"align": [ true ],
+		"curly": true,
+		"class-name": true,
+		"semicolon": ["always"],
+		"triple-equals": true
+	}
+}
