@@ -42,7 +42,7 @@ export class SourceMapStore implements Disposable {
     public getForCurrentDocument(): Promise<SourceMapItem> {
         const currentDocument = vscode.window.activeTextEditor.document;
         const result = this.cache[currentDocument.fileName] ||
-            this.reverseLookupTable[currentDocument.fileName] ||
+            this.reverseLookup(currentDocument.fileName) ||
             fetchSourceMapUrl(currentDocument)
             .then(({mapUrl, fileUrl}: SourceMapFetchResult) => isDataUri(mapUrl) ?
                 SourceMapItem.fromDataUrl(mapUrl, fileUrl) :
@@ -50,6 +50,11 @@ export class SourceMapStore implements Disposable {
             .then(sourceMapItem => this.addItem(sourceMapItem));
 
         return Promise.resolve(result);
+    }
+
+    private reverseLookup(sourceFileName: string): SourceMapItem | null {
+        return this.reverseLookupTable[sourceFileName] ?
+            this.cache[this.reverseLookupTable[sourceFileName]] : null;
     }
 }
 
