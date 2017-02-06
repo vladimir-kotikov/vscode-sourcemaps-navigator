@@ -10,7 +10,7 @@ export class SourceMapStore implements Disposable {
     private reverseLookupTable: {[sourcePath: string]: string } = {};
     private watchers: {[path: string]: FileSystemWatcher} = {};
 
-    public addItem(item: SourceMapItem): SourceMapItem {
+    private addItem(item: SourceMapItem): SourceMapItem {
         this.cache[item.generatedFile] = item;
         this.watchers[item.generatedFile] = vscode.workspace.createFileSystemWatcher(item.generatedFile, true);
         this.watchers[item.generatedFile].onDidChange(() => this.removeItem(item.generatedFile));
@@ -21,7 +21,7 @@ export class SourceMapStore implements Disposable {
         return item;
     }
 
-    public removeItem(generatedPath: string) {
+    private removeItem(generatedPath: string) {
         if (this.watchers[generatedPath]) {
             this.watchers[generatedPath].dispose();
             delete this.watchers[generatedPath];
@@ -35,13 +35,23 @@ export class SourceMapStore implements Disposable {
 
     }
 
+    private reverseLookup(sourceFileName: string): SourceMapItem | null {
+        if (this.reverseLookupTable[sourceFileName]) {
+            return this.cache[this.reverseLookupTable[sourceFileName]];
+        }
+
+        // tslint:disable-next-line:no-null-keyword
+        return null;
+    }
+
     public dispose() {
         Object.keys(this.cache).forEach(key => this.removeItem(key));
     }
 
     public getForCurrentDocument(): Promise<SourceMapItem> {
         const currentDocument = vscode.window.activeTextEditor.document;
-        const result = this.cache[currentDocument.fileName] ||
+        const result =
+            this.cache[currentDocument.fileName] ||
             this.reverseLookup(currentDocument.fileName) ||
             fetchSourceMapUrl(currentDocument)
             .then(({mapUrl, fileUrl}: SourceMapFetchResult) => isDataUri(mapUrl) ?
@@ -50,11 +60,6 @@ export class SourceMapStore implements Disposable {
             .then(sourceMapItem => this.addItem(sourceMapItem));
 
         return Promise.resolve(result);
-    }
-
-    private reverseLookup(sourceFileName: string): SourceMapItem | null {
-        return this.reverseLookupTable[sourceFileName] ?
-            this.cache[this.reverseLookupTable[sourceFileName]] : null;
     }
 }
 

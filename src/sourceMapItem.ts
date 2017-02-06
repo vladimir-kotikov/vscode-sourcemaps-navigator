@@ -22,10 +22,10 @@ export class SourceMapItem {
             sourceMapFile;
     }
 
-    public static fromDataUrl(sourceMapUrl: string, mapFile: string): Promise<SourceMapItem> {
+    public static fromDataUrl(sourceMapUrl: string, sourceMapFile: string): Promise<SourceMapItem> {
         return new Promise<SourceMapItem>(resolve => {
             const data = sourceMapUrl.replace(/\r?\n/g, '').split(",")[1];
-            resolve(SourceMapItem.fromString(new Buffer(data, "base64").toString("utf8"), mapFile));
+            resolve(SourceMapItem.fromString(new Buffer(data, "base64").toString("utf8"), sourceMapFile));
         });
     }
 
@@ -35,7 +35,7 @@ export class SourceMapItem {
     }
 
     public static fromString(data: string, mapFile: string): SourceMapItem {
-        const rawSourceMap = <RawSourceMap>JSON.parse(data);
+        const rawSourceMap = JSON.parse(data) as RawSourceMap;
         return new SourceMapItem(rawSourceMap, mapFile);
     }
 

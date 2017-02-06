@@ -3,7 +3,8 @@
 out/test/**
 test/**
 src/**
+samples/**
 **/*.map
 .gitignore
 tsconfig.json
-vsc-extension-quickstart.md
+tslint.json
