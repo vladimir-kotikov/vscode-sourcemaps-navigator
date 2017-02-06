@@ -25,7 +25,7 @@
       {
         "command": "smnavigator.navigate",
         "key": "shift+f7",
-        "when": "editorTextFocus && editorLangId == 'javascript'"
+        "when": "editorTextFocus"
       }
     ]
   },

@@ -6,14 +6,25 @@ import { SourceMapConsumer, RawSourceMap } from 'source-map';
 import { readFile } from './promisedFs';
 
 export class SourceMapItem {
-    constructor(protected sourceMap: SourceMapConsumer,
-                public sourceFiles: string[],
-                public generatedFile: string,
-                public sourceMapFile?: string){};
+    public sourceFiles: string[];
+    public generatedFile: string;
+    private sourceMap: SourceMapConsumer;
+    constructor(private rawSourceMap: RawSourceMap, private sourceMapFile: string){
+        this.sourceMap = new SourceMapConsumer(rawSourceMap);
 
-    public static fromDataUrl(url: string, mapFile: string): Promise<SourceMapItem> {
+        this.sourceFiles = rawSourceMap.sources
+            .map(source => {
+                return path.resolve(path.dirname(sourceMapFile), (rawSourceMap.sourceRoot || ""), source);
+            });
+
+        this.generatedFile = rawSourceMap.file ?
+            path.resolve(path.dirname(sourceMapFile), rawSourceMap.file) :
+            sourceMapFile;
+    }
+
+    public static fromDataUrl(sourceMapUrl: string, mapFile: string): Promise<SourceMapItem> {
         return new Promise<SourceMapItem>(resolve => {
-            const data = url.replace(/\r?\n/g, '').split(",", 1)[1];
+            const data = sourceMapUrl.replace(/\r?\n/g, '').split(",", 1)[1];
             resolve(SourceMapItem.fromString(new Buffer(data, "base64").toString("utf8"), mapFile));
         });
     }
@@ -25,11 +36,7 @@ export class SourceMapItem {
 
     public static fromString(data: string, mapFile: string): SourceMapItem {
         const rawSourceMap = <RawSourceMap>JSON.parse(data);
-        const sources = rawSourceMap.sources
-            .map(source => path.resolve(rawSourceMap.sourceRoot || "", source));
-
-        return new SourceMapItem(new SourceMapConsumer(rawSourceMap),
-            sources, mapFile, rawSourceMap.file || mapFile);
+        return new SourceMapItem(rawSourceMap, mapFile);
     }
 
     public isCurrentDocumentGenerated(): boolean {
@@ -43,6 +50,8 @@ export class SourceMapItem {
 
     public originalPositionFor(position: FilePosition): FilePosition {
         const smPosition = this.sourceMap.originalPositionFor(position.toSmPosition());
-        return FilePosition.fromSmPosition(smPosition);
+        const source = path.resolve(path.dirname(this.sourceMapFile),
+            (this.rawSourceMap.sourceRoot || ""), smPosition.source);
+        return FilePosition.fromSmPosition({...smPosition, source});
     }
 }

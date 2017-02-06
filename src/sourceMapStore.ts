@@ -1,4 +1,5 @@
 import * as Url from 'url';
+import * as path from 'path';
 import * as vscode from 'vscode';
 import { Disposable, FileSystemWatcher, Range, TextDocument } from 'vscode';
 import { SourceMapItem } from './sourceMapItem';
@@ -43,21 +44,41 @@ export class SourceMapStore implements Disposable {
         const result = this.cache[currentDocument.fileName] ||
             this.reverseLookupTable[currentDocument.fileName] ||
             fetchSourceMapUrl(currentDocument)
-            .then(({url, fileUrl}) => isDataUrl(url) ?
-                SourceMapItem.fromDataUrl(url, fileUrl) :
-                SourceMapItem.fromFile(url))
+            .then(({mapUrl, fileUrl}: SourceMapFetchResult) => isDataUri(mapUrl) ?
+                SourceMapItem.fromDataUrl(mapUrl, fileUrl) :
+                SourceMapItem.fromFile(mapUrl))
             .then(sourceMapItem => this.addItem(sourceMapItem));
 
         return Promise.resolve(result);
     }
 }
 
+/**
+ * Interface, describing fetched source map location
+ */
 interface SourceMapFetchResult {
-    url: string;
+    /**
+     * Either data URL for inline source map or absolute
+     * path to the file, where source map is stored.
+     * @type {string}
+     * @member SourceMapFetchResult
+     */
+    mapUrl: string;
+    /**
+     * Path to the generated file where the source map
+     * is referenced from.
+     * @type {string}
+     * @member SourceMapFetchResult
+     */
     fileUrl: string;
 }
 
-function isDataUrl(url: string): boolean {
+/**
+ * Checks whether provided URL is data URI
+ * @param {string} url URL to check
+ * @returns {boolean}
+ */
+function isDataUri(url: string): boolean {
     return Url.parse(url).protocol === 'data:';
 }
 
@@ -70,11 +91,18 @@ function fetchSourceMapUrl(document: TextDocument): Promise<SourceMapFetchResult
         return matches && matches.length === 2 ? matches[1].trim() : "";
     }
 
-    const url = document.getText(lastTenLines).split('\n')
+    const fetchedMapUrl = document.getText(lastTenLines).split('\n')
     .reduceRight<string>((result, line) => {
         return result || tryExtractUrl(line);
     }, "");
 
-    return url ? Promise.resolve({url, fileUrl: document.fileName}) :
-        Promise.reject(`Can't fetch url from current document at ${document.fileName}`);
+    if (!fetchedMapUrl) {
+        return Promise.reject(`Can't fetch url from current document at ${document.fileName}`);
+    }
+
+    const fileUrl = document.fileName;
+    const mapUrl = isDataUri(fetchedMapUrl) ? fetchedMapUrl :
+        path.resolve(path.dirname(fileUrl), fetchedMapUrl);
+
+    return Promise.resolve({mapUrl, fileUrl});
 }
