@@ -24,7 +24,7 @@ export class SourceMapItem {
 
     public static fromDataUrl(sourceMapUrl: string, mapFile: string): Promise<SourceMapItem> {
         return new Promise<SourceMapItem>(resolve => {
-            const data = sourceMapUrl.replace(/\r?\n/g, '').split(",", 1)[1];
+            const data = sourceMapUrl.replace(/\r?\n/g, '').split(",")[1];
             resolve(SourceMapItem.fromString(new Buffer(data, "base64").toString("utf8"), mapFile));
         });
     }
