@@ -44,7 +44,11 @@ export class SourceMapItem {
     }
 
     public generatedPositionFor(position: FilePosition): FilePosition {
-        const smPosition = this.sourceMap.generatedPositionFor(position.toSmPosition());
+        const { file } = position;
+        const absSourceRoot = path.resolve(path.dirname(this.sourceMapFile),
+            (this.rawSourceMap.sourceRoot || ""));
+        const source = path.relative(absSourceRoot, file);
+        const smPosition = this.sourceMap.generatedPositionFor({...position.toSmPosition(), source});
         return FilePosition.fromSmPosition({...smPosition, source: this.generatedFile});
     }
 
