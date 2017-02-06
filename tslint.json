@@ -1,6 +1,22 @@
 {
 	"rules": {
+		"array-type": [ "array-simple" ],
+		"comment-format": [
+			"check-uppercase",
+			"check-space"
+		],
+		"no-angle-bracket-type-assertion": true,
+		"no-empty": true,
+		"no-inferrable-types": [
+			"ignore-params"
+		],
+		"no-invalid-this": [
+			true
+		],
+		"no-unused-new": true,
 		"no-unused-expression": true,
+		"no-unused-variable": [ true ],
+		"no-duplicate-variable": true,
 		"no-consecutive-blank-lines": [ 2 ],
 		"max-line-length": [ 120 ],
 		"member-access": [
