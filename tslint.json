@@ -16,7 +16,7 @@
 		],
 		"no-unused-new": true,
 		"no-unused-expression": true,
-		"no-unused-variable": [ true ],
+		"no-unused-variable": true,
 		"no-duplicate-variable": true,
 		"no-consecutive-blank-lines": [ 2 ],
 		"max-line-length": [ 120 ],

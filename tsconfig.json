@@ -2,10 +2,9 @@
     "compilerOptions": {
         "strictNullChecks": true,
         "noImplicitAny": true,
-        "noImplicitThis": true,
         "noImplicitReturns": true,
         "noUnusedLocals": true,
-        "noUnusedParameters": true,
+        "experimentalDecorators": true,
         "forceConsistentCasingInFileNames": true,
         "module": "commonjs",
         "target": "es6",

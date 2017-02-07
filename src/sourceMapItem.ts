@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { FilePosition } from './filePosition';
 import { SourceMapConsumer, RawSourceMap } from 'source-map';
-
+import { rejectsWith, throws } from './decorators';
 import { readFile } from './promisedFs';
 
 export class SourceMapItem {
@@ -22,6 +22,7 @@ export class SourceMapItem {
             sourceMapFile;
     }
 
+    @rejectsWith(`Can't read source map from data URI`)
     public static fromDataUrl(sourceMapUrl: string, sourceMapFile: string): Promise<SourceMapItem> {
         return new Promise<SourceMapItem>(resolve => {
             const data = sourceMapUrl.replace(/\r?\n/g, '').split(",")[1];
@@ -29,11 +30,13 @@ export class SourceMapItem {
         });
     }
 
+    @rejectsWith(`Can't read source map from map file`)
     public static fromFile(sourceMapFile: string): Promise<SourceMapItem> {
         return readFile(sourceMapFile)
         .then(fileContents => SourceMapItem.fromString(fileContents, sourceMapFile));
     }
 
+    @throws(`Failed to create source map object from supplied JSON`)
     public static fromString(data: string, mapFile: string): SourceMapItem {
         const rawSourceMap = JSON.parse(data) as RawSourceMap;
         return new SourceMapItem(rawSourceMap, mapFile);
@@ -43,6 +46,7 @@ export class SourceMapItem {
         return this.generatedFile === vscode.window.activeTextEditor.document.fileName;
     }
 
+    @throws(`Failed to get generated position for original file`)
     public generatedPositionFor(position: FilePosition): FilePosition {
         const { file } = position;
         const absSourceRoot = path.resolve(path.dirname(this.sourceMapFile),
@@ -52,6 +56,7 @@ export class SourceMapItem {
         return FilePosition.fromSmPosition({...smPosition, source: this.generatedFile});
     }
 
+    @throws(`Failed to get original position for generated file`)
     public originalPositionFor(position: FilePosition): FilePosition {
         const smPosition = this.sourceMap.originalPositionFor(position.toSmPosition());
         const source = path.resolve(path.dirname(this.sourceMapFile),

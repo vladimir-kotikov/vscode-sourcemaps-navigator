@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { Disposable, FileSystemWatcher, Range, TextDocument } from 'vscode';
 import { SourceMapItem } from './sourceMapItem';
+import { rejectsWith, safeMethod } from './decorators';
 
 export class SourceMapStore implements Disposable {
     private cache: {[generatedPath: string]: SourceMapItem} = {};
@@ -10,18 +11,18 @@ export class SourceMapStore implements Disposable {
     private reverseLookupTable: {[sourcePath: string]: string } = {};
     private watchers: {[path: string]: FileSystemWatcher} = {};
 
-    private addItem(item: SourceMapItem): SourceMapItem {
+    @safeMethod
+    private addItem(item: SourceMapItem): void {
         this.cache[item.generatedFile] = item;
         this.watchers[item.generatedFile] = vscode.workspace.createFileSystemWatcher(item.generatedFile, true);
         this.watchers[item.generatedFile].onDidChange(() => this.removeItem(item.generatedFile));
         this.watchers[item.generatedFile].onDidDelete(() => this.removeItem(item.generatedFile));
 
         item.sourceFiles.forEach(sourceFile => this.reverseLookupTable[sourceFile] = item.generatedFile);
-
-        return item;
     }
 
-    private removeItem(generatedPath: string) {
+    @safeMethod
+    private removeItem(generatedPath: string): void {
         if (this.watchers[generatedPath]) {
             this.watchers[generatedPath].dispose();
             delete this.watchers[generatedPath];
@@ -48,6 +49,7 @@ export class SourceMapStore implements Disposable {
         Object.keys(this.cache).forEach(key => this.removeItem(key));
     }
 
+    @rejectsWith(`Can't retrieve source maps for current document`)
     public getForCurrentDocument(): Promise<SourceMapItem> {
         const currentDocument = vscode.window.activeTextEditor.document;
         const result =
@@ -57,7 +59,10 @@ export class SourceMapStore implements Disposable {
             .then(({mapUrl, fileUrl}: SourceMapFetchResult) => isDataUri(mapUrl) ?
                 SourceMapItem.fromDataUrl(mapUrl, fileUrl) :
                 SourceMapItem.fromFile(mapUrl))
-            .then(sourceMapItem => this.addItem(sourceMapItem));
+            .then(sourceMapItem => {
+                this.addItem(sourceMapItem);
+                return sourceMapItem;
+            });
 
         return Promise.resolve(result);
     }
