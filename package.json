@@ -1,9 +1,14 @@
 {
   "name": "vscode-sourcemaps-navigator",
-  "displayName": "vscode-sourcemaps-navigator",
+  "displayName": "Source maps navigator",
   "description": "An extension to navigate to original source of compiled/transpiled javascript code",
   "version": "0.0.1",
-  "publisher": "vladimir-kotikov",
+  "publisher": "vlkoti",
+  "author": {
+    "email": "kotikov.vladimir@gmail.com",
+    "name": "Vladimir Kotikov",
+    "url": "https://github.com/vladimir-kotikov"
+  },
   "engines": {
     "vscode": "^1.5.0"
   },
@@ -18,7 +23,7 @@
     "commands": [
       {
         "command": "smnavigator.navigate",
-        "title": "Source maps: Navigate"
+        "title": "Source map: Navigate"
       }
     ],
     "keybindings": [

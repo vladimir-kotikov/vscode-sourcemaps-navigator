@@ -1,7 +1,5 @@
 # Change Log
-All notable changes to the "vscode-sourcemaps-navigator" extension will be documented in this file.
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+## 0.0.1 (2017/2/7)
 
-## [Unreleased]
-- Initial release
+Initial release
