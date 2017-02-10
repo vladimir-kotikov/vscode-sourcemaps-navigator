@@ -3,6 +3,8 @@ import { Position } from 'vscode';
 import { MappedPosition } from 'source-map';
 
 export class FilePosition extends Position {
+    public contents: string;
+
     constructor(line: number, character: number, public file: string) {
         super(line, character);
     }

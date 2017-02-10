@@ -59,8 +59,16 @@ export class SourceMapItem {
     @throws(`Failed to get original position for generated file`)
     public originalPositionFor(position: FilePosition): FilePosition {
         const smPosition = this.sourceMap.originalPositionFor(position.toSmPosition());
-        const source = path.resolve(path.dirname(this.sourceMapFile),
-            (this.rawSourceMap.sourceRoot || ""), smPosition.source);
-        return FilePosition.fromSmPosition({...smPosition, source});
+        const source = path.resolve(path.dirname(this.sourceMapFile), smPosition.source);
+        const result = FilePosition.fromSmPosition({ ...smPosition, source });
+
+        const mapSourceIndex = this.rawSourceMap.sources.indexOf(smPosition.source);
+        if (this.rawSourceMap.sourcesContent &&
+            this.rawSourceMap.sourcesContent[mapSourceIndex]) {
+
+            result.contents = this.rawSourceMap.sourcesContent[mapSourceIndex];
+        }
+
+        return result;
     }
 }

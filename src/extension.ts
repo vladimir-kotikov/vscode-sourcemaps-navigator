@@ -45,10 +45,13 @@ function navigate() {
     })
     .then(destinationPosition =>
         navigateToDestination(destinationPosition))
-    .catch((err: Error) => {
-        vscode.window.showWarningMessage(`Can\'t get source map for current document: ${err.message}`);
-        getOutputChannel().appendLine(err.message);
-        if (err.stack) {
+    .catch((err: string|Error) => {
+        let message: string  = typeof err === 'string' ? err :
+            (err as Error).message;
+
+        vscode.window.showWarningMessage(`Can\'t get source map for current document: ${message}`);
+        getOutputChannel().appendLine(message);
+        if (err instanceof Error && err.stack) {
             getOutputChannel().appendLine(err.stack);
         }
     });
@@ -56,13 +59,44 @@ function navigate() {
 
 /**
  * Opens the file at position, specified in filePosition parameter
- * @returns {PromiseLike}
+ * @returns {Promise}
  */
-function navigateToDestination(destination: FilePosition): PromiseLike<void> {
-    return vscode.workspace.openTextDocument(destination.file)
-    .then(vscode.window.showTextDocument)
-    .then(editor => {
-        editor.selection = new Selection(destination, destination);
-        editor.revealRange(editor.selection, vscode.TextEditorRevealType.InCenter);
+function navigateToDestination(destination: FilePosition): Promise<void> {
+    return promisify(vscode.workspace.openTextDocument(destination.file))
+        .catch(() => {
+            if (!destination.contents) {
+                return Promise.reject(`Original source doesn't exist and source map doesn't provide inline source`);
+            }
+
+            const untitledFile = vscode.Uri.file(destination.file).with({ scheme: 'untitled' });
+            return vscode.workspace.openTextDocument(untitledFile);
+        })
+        .then(vscode.window.showTextDocument)
+        .then(editor => {
+            if (!editor.document.isUntitled) {
+                return editor;
+            }
+
+            const builderOptions = { undoStopBefore: false, undoStopAfter: true };
+            return editor
+                .edit(builder => {
+                    const wholeDoc = new vscode.Range(
+                        editor.document.positionAt(0),
+                        editor.document.positionAt(editor.document.getText().length)
+                    );
+                    return builder.replace(wholeDoc, destination.contents);
+                }, builderOptions)
+                .then(() => editor);
+        })
+        .then((editor: vscode.TextEditor) => {
+            editor.selection = new Selection(destination, destination);
+            editor.revealRange(editor.selection, vscode.TextEditorRevealType.InCenter);
+        });
+
+}
+
+function promisify<T>(thenable: Thenable<T>): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
+        thenable.then(resolve, reject);
     });
 }
