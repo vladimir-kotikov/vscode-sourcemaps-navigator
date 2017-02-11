@@ -4,11 +4,22 @@
   "description": "An extension to navigate to original source of compiled/transpiled javascript code",
   "version": "0.0.1",
   "publisher": "vlkoti",
+  "private": true,
   "author": {
     "email": "kotikov.vladimir@gmail.com",
     "name": "Vladimir Kotikov",
     "url": "https://github.com/vladimir-kotikov"
   },
+  "homepage": "https://github.com/vladimir-kotikov/vscode-sourcemaps-navigator",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vladimir-kotikov/vscode-sourcemaps-navigator"
+  },
+  "bugs": {
+    "email": "kotikov.vladimir@gmail.com",
+    "url": "https://github.com/vladimir-kotikov/vscode-sourcemaps-navigator/issues"
+  },
+  "license": "MIT",
   "engines": {
     "vscode": "^1.5.0"
   },
