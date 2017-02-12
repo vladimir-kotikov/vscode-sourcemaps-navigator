@@ -12,12 +12,12 @@ Navigates (opens in separate tab) original source of transpiled/generated file f
 
 After navigating from generated file to original one, backward navigation is also becomes available.
 
-## Limitations
-
-The extension currently only supports standard and inline source maps without embedded sources.
-
 ## Release Notes
 
 ### 0.0.1
 
 The initial release
+
+### 0.0.2
+
+Added support for navigating to inlined sources

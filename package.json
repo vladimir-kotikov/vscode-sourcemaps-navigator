@@ -2,7 +2,7 @@
   "name": "vscode-sourcemaps-navigator",
   "displayName": "Source maps navigator",
   "description": "An extension to navigate to original source of compiled/transpiled javascript code",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "vlkoti",
   "private": true,
   "author": {
