@@ -1,12 +1,13 @@
 'use strict';
 
 import * as vscode from 'vscode';
-import { Disposable, Selection, OutputChannel } from 'vscode';
+import { Selection, OutputChannel } from 'vscode';
 import { FilePosition } from './filePosition';
 import { SourceMapStore } from './sourceMapStore';
+import { SourceMapLinkProvider } from './sourceMapLinkProvider';
+import { SourceMapContentProvider } from './sourceMapContentProvider';
 
 let sourceMapStore: SourceMapStore;
-let navigateCommand: Disposable;
 let outputChannel: OutputChannel;
 
 /**
@@ -21,9 +22,15 @@ function getOutputChannel(): OutputChannel {
 }
 
 export function activate(context: vscode.ExtensionContext) {
-    navigateCommand = vscode.commands.registerCommand('smnavigator.navigate', navigate);
     sourceMapStore = new SourceMapStore();
-    context.subscriptions.push(navigateCommand, sourceMapStore);
+    context.subscriptions.push(
+        sourceMapStore,
+        vscode.commands.registerCommand('smnavigator.navigate', navigate),
+        vscode.languages.registerDocumentLinkProvider(
+            ['javascript', 'javascriptreact'], new SourceMapLinkProvider()),
+        vscode.workspace.registerTextDocumentContentProvider(
+            'sourcemap', new SourceMapContentProvider())
+    );
 }
 
 /**

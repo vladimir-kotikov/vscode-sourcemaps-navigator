@@ -27,7 +27,11 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:smnavigator.navigate"
+    "onCommand:smnavigator.navigate",
+    "onLanguage:javascript",
+    "onLanguage:typescript",
+    "onLanguage:javascriptreact",
+    "onLanguage:typescriptreact"
   ],
   "main": "./out/src/extension",
   "contributes": {
