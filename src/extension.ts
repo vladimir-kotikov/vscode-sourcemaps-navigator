@@ -34,10 +34,10 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 /**
- * The entry point for source maps bavigation. Tries to fetch source maps from
+ * The entry point for source maps navigation. Tries to fetch source maps from
  * current document (possibly using source map store's internal cache), determine
  * mapping direction (generated -> source and back), determine the target file to
- * open and  then open it at restective position.
+ * open and then open it at respective position.
  *
  * In case of errors reports them via informational message and prints error trace
  * to output window.
