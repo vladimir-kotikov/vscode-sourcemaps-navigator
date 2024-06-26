@@ -1,5 +1,7 @@
 # VSCode Source Maps Navigator
 
+> DiSCLAIMER: Since i'm not going to develop or support this anymore, you'd better check @andersnm's [vscode-sourcemap-helper](https://github.com/andersnm/vscode-sourcemap-helper) as successor and a better alternative.
+
 VSCode Source Maps Navigator is a VSCode extension that allows you to quickly navigate to the original source code directly from transpiled/generated one.
 
 The extension is also provides an ability to open the source map itself (both inline maps and map files are supported) by `Ctrl/Cmd+click` on source map URL.
